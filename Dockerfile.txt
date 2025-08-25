@@ -1,0 +1,23 @@
+# 第1步：选择一个基础镜像。我们的代码需要在 Node.js 环境下运行。
+FROM node:24-slim
+
+# 第2步：在容器内部创建一个工作目录，我们的应用将在这里运行。
+WORKDIR /usr/src/app
+
+# 第3步：复制依赖描述文件到工作目录。
+# 这样做可以利用Docker的缓存机制，如果依赖没变，就不用重新安装，加快构建速度。
+COPY package*.json ./
+
+# 第4步：在容器里安装所有在 package.json 中声明的依赖。
+RUN npm install
+# 下载 Playwright 所需的浏览器
+RUN npx playwright install --with-deps
+
+# 第5步：把您本地项目文件夹里所有的文件和文件夹，都复制到容器的工作目录中。
+COPY . .
+
+# 第6步：告诉Docker，我们的应用程序会使用3000端口 (如果您的服务不是3000端口，请修改成对应的端口号)。
+EXPOSE 3000
+
+# 第7步：定义容器启动后，默认要执行的命令。
+CMD [ "npm", "run", "server" ]
